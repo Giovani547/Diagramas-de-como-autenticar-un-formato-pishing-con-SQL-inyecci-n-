@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Iniciar sesión</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EAF0F6; --panel:#FFFFFF; --ink:#14213D; --muted:#5B6B85;
+  --line:#C9D4E3; --accent:#4C3FE0; --accent-ink:#FFFFFF;
+  --err:#B3261E; --ok:#1E7B4F;
+  --c0:#D8E1EE; --c1:#B9B4F5; --c2:#8A80EE; --c3:#4C3FE0;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#101827; --panel:#17233A; --ink:#EAF0F6; --muted:#9BAAC4;
+    --line:#2C3D5C; --accent:#8A80EE; --accent-ink:#101827;
+    --err:#FF8A80; --ok:#5FD39B;
+    --c0:#1F2E48; --c1:#37337A; --c2:#5B52C9; --c3:#8A80EE;
+  }
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:var(--bg);color:var(--ink);
+  display:grid;grid-template-columns:1.1fr 1fr;
+}
+.graph{
+  padding:48px;display:flex;flex-direction:column;justify-content:space-between;gap:32px;
+  border-right:1px solid var(--line);overflow:hidden;
+}
+.graph h1{font-size:clamp(2rem,4vw,3.4rem);line-height:1.05;margin:0;font-weight:700;max-width:12ch}
+.graph p{color:var(--muted);margin:12px 0 0;max-width:36ch;line-height:1.5}
+.grid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:5px;width:100%;max-width:640px}
+.grid i{aspect-ratio:1;border-radius:3px;background:var(--c0)}
+.grid i.l1{background:var(--c1)}.grid i.l2{background:var(--c2)}.grid i.l3{background:var(--c3)}
+main{display:flex;align-items:center;justify-content:center;padding:32px}
+form{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:32px}
+form h2{margin:0 0 4px;font-size:1.5rem}
+form .sub{margin:0 0 24px;color:var(--muted);font-size:.95rem}
+label{display:block;font-weight:500;font-size:.9rem;margin:16px 0 6px}
+.field{position:relative}
+input[type=text],input[type=password]{
+  width:100%;font:inherit;padding:11px 12px;border-radius:8px;
+  border:1px solid var(--line);background:transparent;color:var(--ink);
+}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.toggle{
+  position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  background:none;border:0;color:var(--muted);font:inherit;font-size:.85rem;
+  padding:6px 8px;border-radius:6px;cursor:pointer;
+}
+.row{display:flex;justify-content:space-between;align-items:center;margin-top:16px;font-size:.9rem}
+.row label{display:flex;gap:8px;align-items:center;margin:0;font-weight:400}
+.row a{color:var(--accent);text-decoration:none}
+.row a:hover{text-decoration:underline}
+button.submit{
+  width:100%;margin-top:24px;padding:12px;font:inherit;font-weight:700;
+  background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;cursor:pointer;
+}
+button.submit:disabled{opacity:.6;cursor:wait}
+#msg{min-height:1.4em;margin:16px 0 0;font-size:.9rem}
+#msg.err{color:var(--err)}#msg.ok{color:var(--ok)}
+.session{display:none;text-align:center}
+.session.on{display:block}
+.session button{margin-top:16px;padding:10px 16px;font:inherit;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;cursor:pointer}
+@media (max-width:820px){
+  body{grid-template-columns:1fr;height:auto;min-height:100%}
+  .graph{padding:28px;border-right:0;border-bottom:1px solid var(--line);gap:20px}
+  .grid{max-width:100%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<section class="graph" aria-hidden="true">
+  <div>
+    <h1>Hola inicia seción para verificar el protocolo hash</h1>
+    <p>puedes entrar a verificar si eres un usuario premium</p>
+  </div>
+  <div class="grid" id="grid"></div>
+</section>
+
+<main>
+  <form id="login" novalidate>
+    <h2>Iniciar sesion con protección AES</h2>
+    <p class="sub">Usa tu usuario y contraseña para registrate en mi sitio web.</p>
+
+    <label for="user">Usuario o correo</label>
+    <input id="user" type="text" autocomplete="username" required>
+
+    <label for="pass">Contraseña</label>
+    <div class="field">
+      <input id="pass" type="password" autocomplete="current-password" required>
+      <button type="button" class="toggle" id="toggle" aria-label="Mostrar contraseña">Mostrar</button>
+    </div>
+
+    <div class="row">
+      <label><input type="checkbox" id="remember"> Recordarme</label>
+      <a href="#" id="forgot">¿Olvidaste tu contraseña?</a>
+    </div>
+
+    <button class="submit" type="submit" id="btn">Iniciar sesión</button>
+    <p id="msg" role="status" aria-live="polite"></p>
+  </form>
+
+  <div class="session" id="session">
+    <h2 id="welcome"></h2>
+    <p class="sub">Sesión iniciada.</p>
+    <button type="button" id="logout">Cerrar sesión</button>
+  </div>
+</main>
+
+<script>
+/* ---- CONFIGURACIÓN ----
+   Esta es una demo del lado del cliente: cualquiera puede leer este código.
+   Usuario de prueba: demo  /  contraseña: cambiame123
+   Para cambiarla, genera un SHA-256 de tu contraseña y pégalo en PASS_HASH. */
+const USER = "demo";
+const PASS_HASH = "3518b9cb40225e3e8ea97cec84acdda8d1d013295cd0b3675f7bd23995ff414c";
+
+const $ = id => document.getElementById(id);
+const msg = (t, c) => { $("msg").textContent = t; $("msg").className = c || ""; };
+
+// Cuadrícula decorativa de actividad
+(function(){
+  const g = $("grid"); let s = 7;
+  const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+  for (let i = 0; i < 26 * 7; i++) {
+    const el = document.createElement("i"), r = rnd();
+    if (r > .88) el.className = "l3"; else if (r > .72) el.className = "l2"; else if (r > .5) el.className = "l1";
+    g.appendChild(el);
+  }
+})();
+
+async function sha256(t){
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t));
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("");
+}
+
+function store(){ try { return $("remember").checked ? localStorage : sessionStorage; } catch(e){ return null; } }
+function getSaved(){ try { return localStorage.getItem("user") || sessionStorage.getItem("user"); } catch(e){ return null; } }
+function clearSaved(){ try { localStorage.removeItem("user"); sessionStorage.removeItem("user"); } catch(e){} }
+
+function showSession(name){
+  $("login").style.display = "none";
+  $("welcome").textContent = "Hola, " + name;
+  $("session").classList.add("on");
+}
+
+$("toggle").onclick = () => {
+  const p = $("pass"), show = p.type === "password";
+  p.type = show ? "text" : "password";
+  $("toggle").textContent = show ? "Ocultar" : "Mostrar";
+  $("toggle").setAttribute("aria-label", show ? "Ocultar contraseña" : "Mostrar contraseña");
+};
+
+$("forgot").onclick = e => { e.preventDefault(); msg("Cambia la contraseña editando PASS_HASH en el código.", ""); };
+
+$("login").addEventListener("submit", async e => {
+  e.preventDefault();
+  const u = $("user").value.trim(), p = $("pass").value;
+  if (!u || !p) return msg("Escribe tu usuario y tu contraseña.", "err");
+  $("btn").disabled = true; msg("Comprobando…", "");
+  const ok = u === USER && (await sha256(p)) === PASS_HASH;
+  $("btn").disabled = false;
+  if (!ok) { $("pass").value = ""; $("pass").focus(); return msg("Usuario o contraseña incorrectos. Revisa los datos e inténtalo de nuevo.", "err"); }
+  const st = store(); if (st) { try { st.setItem("user", u); } catch(_){} }
+  showSession(u);
+});
+
+$("logout").onclick = () => {
+  clearSaved();
+  $("session").classList.remove("on");
+  $("login").style.display = "";
+  $("pass").value = ""; msg("", "");
+};
+
+const saved = getSaved(); if (saved) showSession(saved);
+</script>
+</body>
+</html>
